@@ -1,5 +1,6 @@
 import requests
 import numpy as np
+from yahoo_finance import Share
 from bs4 import BeautifulSoup
 from AlpacaAPI.alpacaApi import AlpacaApi
 
@@ -24,3 +25,8 @@ class Scraper:
             if i.contents[0] in self.available and len(self.tickers) < 5:
                 self.tickers.append(i.contents[0])
         return self.tickers
+
+class YahooData:
+
+    def __init__(self, ticker):
+        yahoo = Share(ticker)

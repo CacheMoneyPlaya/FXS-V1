@@ -1,5 +1,5 @@
 import os
-from Scraping.scraper import Scraper
+from YahooFinance.yahooFinance import Scraper
 from datetime import datetime
 
 class Entry:
@@ -16,13 +16,9 @@ class Entry:
 
     def regulate(self, tickers):
         now_UTC = datetime.utcnow()
-        while True:
-            if now_UTC.hour < 24:
-                for t in enumerate(self.tickers):
-                    # Get stock data
-                    print(t)
-                    # Apply strategies
-                    # Sleep for 1 minute
-            else:
-                # Trading hours are over
-                exit()
+        while now_UTC.hour < 24:
+            for t in enumerate(self.tickers):
+                # Get stock data
+                print(t)
+                # Apply strategies
+                # Sleep for 1 minute
