@@ -1,6 +1,6 @@
 import requests
 import numpy as np
-from yahoo_finance import Share
+import yfinance as yf
 from bs4 import BeautifulSoup
 from AlpacaAPI.alpacaApi import AlpacaApi
 
@@ -28,5 +28,5 @@ class Scraper:
 
 class YahooData:
 
-    def __init__(self, ticker):
-        yahoo = Share(ticker)
+    def getTickerData(self, ticker):
+        return yf.Ticker(ticker)
