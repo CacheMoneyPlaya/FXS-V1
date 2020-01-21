@@ -1,11 +1,13 @@
 alpaca-trade-api==0.42
 appdirs==1.4.3
+art==4.4
 asyncio-nats-client==0.10.0
 beautifulsoup4==4.8.2
 bs4==0.0.1
 certifi==2019.9.11
 chardet==3.0.4
 colorama==0.4.1
+coverage==5.0.3
 cssselect==1.1.0
 Deprecated==1.2.7
 fake-useragent==0.1.11
