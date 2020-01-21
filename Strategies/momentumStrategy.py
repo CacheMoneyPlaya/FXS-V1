@@ -3,6 +3,7 @@ from yahoo_fin import stock_info as si
 from datetime import date
 import pandas as pd
 import time
+import pytz
 import numpy as np
 import yfinance as yf
 import csv
@@ -18,9 +19,8 @@ def setPriorTickerData(tickers):
     run(tickers)
 
 def run(tickers):
-    now_UTC = datetime.utcnow()
-
-    while now_UTC.hour < 21:
+    now_UTC = datetime.now.pytz.timezone('US/Eastern')
+    while now_UTC.hour < 14:
         for t in tickers:
             path = "C:/Users/User/Documents/Tests/FXS-V1/TickerData"+"/"+str(t)+".xlsx"
             # Get stock data
