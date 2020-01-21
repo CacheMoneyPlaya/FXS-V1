@@ -2,23 +2,40 @@ from datetime import datetime
 from yahoo_fin import stock_info as si
 from datetime import date
 import pandas as pd
+import time
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas_datareader as pdr
 import yfinance as yf
+import csv
 
-data = {}
+historicalData = {}
 
-def setPriorTickerData(ticker):
-    # Get Historical data 1-2 days prior in 1 min increments
-    data.update({ticker: pd.DataFrame(yf.download(tickers = ticker,period = '1d',interval = '1m').Open)})
+def setPriorTickerData(tickers):
+    # Get Historical data 1 day prior in 1 min increments
+    for t in tickers:
+        historicalData.update({t: pd.DataFrame(yf.download(tickers = t,period = '1d',interval = '1m').Open)})
+        path = "C:/Users/User/Documents/Tests/FXS-V1/TickerData"+"/"+str(t)+".xlsx"
+        historicalData[t].to_csv(path, index=True)
+    run(tickers)
 
-def run(ticker):
-    # Every minute create a new row ontop of exisitng data with new ask
-    live_ask = si.get_live_price(ticker)
-    concurrent_time = datetime.now().strftime("%Y-%m-%d %H:%M:00 - 05:00")
-    data[ticker].loc[concurrent_time, 'Open'] = live_ask
+def run(tickers):
+    now_UTC = datetime.utcnow()
+
+    while now_UTC.hour < 21:
+        for t in tickers:
+            path = "C:/Users/User/Documents/Tests/FXS-V1/TickerData"+"/"+str(t)+".xlsx"
+            # Get stock data
+            # Every minute create a new row on top of existing data with new ask
+            live_ask = si.get_live_price(t)
+            concurrent_time = datetime.now().strftime("%Y-%m-%d %H:%M:00-05:00")
+            # Write the concurrent minute value to existing csv
+            with open(path,'a', newline='') as f:
+                writer=csv.writer(f)
+                writer.writerow([str(concurrent_time), str(live_ask)])
+            # Calculate moving averages across Fibonacci time frames   
+        print('Analysis Complete')    
+        time.sleep(60)
+    exit()
 
     # Calculate the moving average , 5minMA and 15 minMA (check fibonacci seq) concurrent value
     # If buy signal, buy, store this as an actively open position and remove stock from tickers while in position
-    # Run the activity check on stock to look for sell
+    # Run the activity check on stock to look for sell signal

@@ -16,12 +16,4 @@ class Entry:
         self.regulate(self.tickers)
 
     def regulate(self, tickers):
-        now_UTC = datetime.utcnow()
-        for t in self.tickers:
-            mstrat.setPriorTickerData(t)
-
-        while now_UTC.hour < 24:
-            for t in self.tickers:
-                # Get stock data
-                mstrat.run(t)
-            time.sleep(60)
+        mstrat.setPriorTickerData(tickers)
