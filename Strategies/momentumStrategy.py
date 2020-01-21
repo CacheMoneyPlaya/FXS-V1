@@ -23,17 +23,16 @@ def run(tickers):
     while now_UTC.hour < 14:
         for t in tickers:
             path = "C:/Users/User/Documents/Tests/FXS-V1/TickerData"+"/"+str(t)+".xlsx"
-            # Get stock data
-            # Every minute create a new row on top of existing data with new ask
+            # Get stock data, every minute create a new row on top of existing data with new ask
             live_ask = si.get_live_price(t)
-            print(t + ' --> ' + str(live_ask))
+            print('\033[92m' + t + ' --> ' + str(live_ask))
             concurrent_time = datetime.now().strftime("%Y-%m-%d %H:%M:00-05:00")
             # Write the concurrent minute value to existing csv
             with open(path,'a', newline='') as f:
                 writer=csv.writer(f)
                 writer.writerow([str(concurrent_time), str(live_ask)])
             # Calculate moving averages across Fibonacci time frames   
-        print('Analysis Complete')    
+        print('\033[91m' + 'Analysis Complete')    
         time.sleep(5)
     exit()
 
