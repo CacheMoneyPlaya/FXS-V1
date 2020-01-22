@@ -20,9 +20,9 @@ class Scraper:
         for a in availableTickers:
             self.available.append(a.symbol)
 
-        # Create a list of 5 of the top performing daily symbols
+        # Create a list of 3 of the top performing daily symbols
         for i in assets:
-            if i.contents[0] in self.available and len(self.tickers) < 5:
+            if i.contents[0] in self.available and len(self.tickers) < 3:
                 self.tickers.append(i.contents[0])
         return self.tickers
 
