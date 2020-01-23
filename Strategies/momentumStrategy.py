@@ -49,6 +49,7 @@ def run(tickers):
         if now_UTC.hour == 15 and now_UTC.minute == 30:  
             endDayTradepositions()
         time.sleep(15)
+    print('Markets are now closed')    
     exit()
 
     # Calculate the moving average , 5minMA and 15 minMA (check fibonacci seq) concurrent value
