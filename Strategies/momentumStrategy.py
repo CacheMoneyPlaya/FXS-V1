@@ -22,12 +22,16 @@ api = tradeapi.REST(
     api_version='v2')
 
 def setPriorTickerData(tickers):
+    now_UTC = datetime.now(pytz.timezone('America/New_York'))
     # Get Historical data 1 day prior in 1 min increments
-    for t in tickers:
-        historicalData.update({t: pd.DataFrame(yf.download(tickers = t,period = '1d',interval = '1m').Open)})
-        path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
-        historicalData[t].to_csv(path, index=True)
-    run(tickers)
+    if now_UTC.hour < 16:
+        for t in tickers:
+            historicalData.update({t: pd.DataFrame(yf.download(tickers = t,period = '1d',interval = '1m').Open)})
+            path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
+            historicalData[t].to_csv(path, index=True)
+        run(tickers)
+    else:
+        print('\033[91m'+'Markets are closed, please run again at 2:30 GMT')
 
 def run(tickers):
     now_UTC = datetime.now(pytz.timezone('America/New_York'))
