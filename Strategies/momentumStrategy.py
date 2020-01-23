@@ -37,7 +37,7 @@ def run(tickers):
             path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
             # Get stock data, every minute create a new row on top of existing data with new ask
             live_ask = si.get_live_price(t)
-            # print('\033[92m'+t+' --> '+str(live_ask))
+            print('\033[92m'+t+' --> '+str(live_ask))
             concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:00-05:00")
             # Write the concurrent minute value to existing csv
             with open(path,'a', newline='') as f:
@@ -45,7 +45,7 @@ def run(tickers):
                 writer.writerow([str(concurrent_time), str(live_ask)])
             # Calculate moving averages across Fibonacci time frames
                 momentumSignal(t)
-        # print('\033[91m'+'Analysis Complete')
+        print('\033[91m'+'Analysis Complete')
         if now_UTC.hour == 15 and now_UTC.minute == 30:  
             endDayTradepositions()
         time.sleep(15)
@@ -70,15 +70,15 @@ def momentumSignal(t):
     # If we have a buy signal, we have no current pending buy orders and we dont have any open positions buy
     if position == 1/3 and not any(order.symbol == t for order in orders) and not any(position.symbol == t for position in positions):
         # Create buy order with 1/4 of buying power
-        # print('\033[91m'+'BUYING '+t+' at '+str(df.iloc[-1]['Open']))
+        print('\033[91m'+'BUYING '+t+' at '+str(df.iloc[-1]['Open']))
         buy_qty = math.ceil((float(account.equity)*(1/4))/(float(df.iloc[-1]['Open'])))
-        print(api.submit_order(t, buy_qty, 'buy', 'market', 'day', limit_price=None, stop_price=None))
+        api.submit_order(t, buy_qty, 'buy', 'market', 'day', limit_price=None, stop_price=None)
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
     elif position == (-1/3) and any(position.symbol == t for position in positions) and not any(order.symbol == t for order in orders):
         # Create sell order
-        # print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
+        print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
         sell_qty = next((x.qty for x in orders if x.symbol == t), None)
-        print(api.submit_order(t, sell_qty, 'sell', 'market', 'day', limit_price=None, stop_price=None))
+        api.submit_order(t, sell_qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
 
     # Visualization
     # fig = plt.figure()
@@ -94,5 +94,5 @@ def endDayTradepositions():
         api.cancel_order(o.order_id)
     for p in positions:
         api.submit_order(p.symbol, p.qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
-    # print('\033[91m'+'Orders and positions closed')
-    # print('Local trading has now ended to preserve strategy integrity')
+    print('\033[91m'+'Orders and positions closed')
+    print('Local trading has now ended to preserve strategy integrity')
