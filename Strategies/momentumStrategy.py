@@ -4,6 +4,7 @@ from datetime import date
 from dotenv import load_dotenv
 import alpaca_trade_api as tradeapi
 import os
+import math
 import pandas as pd
 import time
 import pytz
@@ -31,14 +32,12 @@ def setPriorTickerData(tickers):
 def run(tickers):
     now_UTC = datetime.now(pytz.timezone('America/New_York'))
 
-    while now_UTC.hour < 24:
-        testing_count = 0
+    while now_UTC.hour < 16:
         for t in tickers:
-            testing_count+=1
             path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
             # Get stock data, every minute create a new row on top of existing data with new ask
             live_ask = si.get_live_price(t)
-            print('\033[92m' + t + ' --> ' + str(live_ask))
+            print('\033[92m'+t+' --> '+str(live_ask))
             concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:00-05:00")
             # Write the concurrent minute value to existing csv
             with open(path,'a', newline='') as f:
@@ -46,9 +45,10 @@ def run(tickers):
                 writer.writerow([str(concurrent_time), str(live_ask)])
             # Calculate moving averages across Fibonacci time frames
                 momentumSignal(t)
-        print('\033[91m' + 'Analysis Complete')    
+        print('\033[91m'+'Analysis Complete')
+        if now_UTC.hour == 15 and now_UTC.minute == 30:  
+            endDayTradepositions()
         time.sleep(15)
-    print('Markets are currently closed...')
     exit()
 
     # Calculate the moving average , 5minMA and 15 minMA (check fibonacci seq) concurrent value
@@ -57,9 +57,8 @@ def run(tickers):
 
 def momentumSignal(t):
     orders = api.list_positions()
+    account = api.get_account()
 
-    # print(any(order.get('symbol') == t for order in orders))
-    
     df = pd.read_csv(str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx", index_col="Datetime")
     # Switched to EMA strategy to reduce price lag
     ema_short = df.ewm(span=5, adjust=False).mean()
@@ -67,16 +66,31 @@ def momentumSignal(t):
     diff = df.iloc[-1]['Open'] - ema_short.iloc[-1]['Open']
     position = np.sign(diff) * 1/3
 
-
-    if position == 1/3:
-        print('BUYING '+t+' at '+str(df.iloc[-1]['Open']))
+    if position == 1/3 and not any(order.symbol == t for order in orders):
+        # Create buy order with 1/4 of buying power
+        print('\033[91m'+'BUYING '+t+' at '+str(df.iloc[-1]['Open']))
+        buy_qty = math.ceil((float(account.equity)*(1/4))/(float(df.iloc[-1]['Open'])))
+        api.submit_order(t, buy_qty, 'buy', 'market', 'day', limit_price=None, stop_price=None)
         
-    else:
-        print('Selling '+t+' at '+str(df.iloc[-1]['Open']))                
+    elif diff != 0 and any(order.symbol == t for order in orders):
         # Create sell order
+        print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
+        sell_qty = next((x.qty for x in orders if x.symbol == t), None)
+        api.submit_order(t, sell_qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
 
     # Visualization
     # fig = plt.figure()
     # for frame in [df.reset_index(),ema_short.reset_index()]:
     #     plt.plot(frame['Datetime'], frame['Open'])
     # plt.show()
+
+def endDayTradepositions():
+    positions = api.list_positions()
+    orders = api.list_orders()
+    # Sell assets at current price
+    for o in orders:
+        api.cancel_order(o.order_id)
+    for p in positions:
+        api.submit_order(p.symbol, p.qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
+    print('\033[91m'+'Orders and positions closed')
+    print('Local trading has now ended to preserve strategy integrity')
