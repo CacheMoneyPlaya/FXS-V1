@@ -24,7 +24,7 @@ api = tradeapi.REST(
 def setPriorTickerData(tickers):
     now_UTC = datetime.now(pytz.timezone('America/New_York'))
     # Get Historical data 1 day prior in 1 min increments
-    if now_UTC.hour < 16:
+    if now_UTC.hour < 24:
         for t in tickers:
             historicalData.update({t: pd.DataFrame(yf.download(tickers = t,period = '1d',interval = '1m').Open)})
             path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
@@ -36,7 +36,7 @@ def setPriorTickerData(tickers):
 def run(tickers):
     now_UTC = datetime.now(pytz.timezone('America/New_York'))
 
-    while now_UTC.hour < 16:
+    while now_UTC.hour < 24:
         for t in tickers:
             path = str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx"
             # Get stock data, every minute create a new row on top of existing data with new ask
@@ -52,7 +52,7 @@ def run(tickers):
         print('\033[91m'+'Analysis Complete')
         if now_UTC.hour == 15 and now_UTC.minute == 30:  
             endDayTradepositions()
-        time.sleep(15)
+        time.sleep(2)
     print('Markets are now closed')    
     exit()
 
@@ -61,7 +61,7 @@ def run(tickers):
     # Run the activity check on stock to look for sell signal
 
 def momentumSignal(t):
-    orders = api.list_positions()
+    orders = api.list_orders()
     positions = api.list_positions()
     account = api.get_account()
 
@@ -71,19 +71,19 @@ def momentumSignal(t):
     # Taking the difference between the prices and the EMA timeseries
     diff = df.iloc[-1]['Open'] - ema_short.iloc[-1]['Open']
     position = np.sign(diff) * 1/3
-
+    
     # If we have a buy signal, we have no current pending buy orders and we dont have any open positions buy
     if position == 1/3 and not any(order.symbol == t for order in orders) and not any(position.symbol == t for position in positions):
         # Create buy order with 1/4 of buying power
         print('\033[91m'+'BUYING '+t+' at '+str(df.iloc[-1]['Open']))
         buy_qty = math.ceil((float(account.equity)*(1/4))/(float(df.iloc[-1]['Open'])))
-        api.submit_order(t, buy_qty, 'buy', 'market', 'day', limit_price=None, stop_price=None)
+        api.submit_order(t, str(buy_qty), "buy", "market", "day")
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
     elif position == (-1/3) and any(position.symbol == t for position in positions) and not any(order.symbol == t for order in orders):
         # Create sell order
         print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
         sell_qty = next((x.qty for x in orders if x.symbol == t), None)
-        api.submit_order(t, sell_qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
+        api.submit_order(t, str(sell_qty), "sell", "market", "day")
 
     # Visualization
     # fig = plt.figure()
