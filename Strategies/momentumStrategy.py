@@ -2,7 +2,7 @@ from datetime import datetime
 from yahoo_fin import stock_info as si
 from datetime import date
 from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
+from AlpacaAPI.alpacaApi import AlpacaApi
 import os
 import math
 import pandas as pd
@@ -15,11 +15,8 @@ import matplotlib.pyplot as plt
 
 historicalData = {}
 load_dotenv('.env')
-api = tradeapi.REST(
-    os.getenv('APCA_API_KEY_ID'),
-    os.getenv('APCA-API-SECRET-KEY'),
-    os.getenv('OAPCA_API_DATA_URL'),
-    api_version='v2')
+
+api = AlpacaApi()
 
 def setPriorTickerData(tickers):
     now_UTC = datetime.now(pytz.timezone('America/New_York'))
@@ -61,9 +58,9 @@ def run(tickers):
     # Run the activity check on stock to look for sell signal
 
 def momentumSignal(t):
-    orders = api.list_orders()
-    positions = api.list_positions()
-    account = api.get_account()
+    orders = api.api.list_orders()
+    positions = api.api.list_positions()
+    account = api.api.get_account()
 
     df = pd.read_csv(str(os.getenv('TICKER_DATA_PATH'))+"/"+str(t)+".xlsx", index_col="Datetime")
     # Switched to EMA strategy to reduce price lag
@@ -77,13 +74,13 @@ def momentumSignal(t):
         # Create buy order with 1/4 of buying power
         print('\033[91m'+'BUYING '+t+' at '+str(df.iloc[-1]['Open']))
         buy_qty = math.ceil((float(account.equity)*(1/4))/(float(df.iloc[-1]['Open'])))
-        api.submit_order(t, str(buy_qty), "buy", "market", "day")
+        api.api.submit_order(t, str(buy_qty), "buy", "market", "day")
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
     elif position == (-1/3) and any(position.symbol == t for position in positions) and not any(order.symbol == t for order in orders):
         # Create sell order
         print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
         sell_qty = next((x.qty for x in orders if x.symbol == t), None)
-        api.submit_order(t, str(sell_qty), "sell", "market", "day")
+        api.api.submit_order(t, str(sell_qty), "sell", "market", "day")
 
     # Visualization
     # fig = plt.figure()
@@ -92,12 +89,12 @@ def momentumSignal(t):
     # plt.show()
 
 def endDayTradepositions():
-    positions = api.list_positions()
-    orders = api.list_orders()
+    positions = api.api.list_positions()
+    orders = api.api.list_orders()
     # Sell assets at current price
     for o in orders:
-        api.cancel_order(o.order_id)
+        api.api.cancel_order(o.order_id)
     for p in positions:
-        api.submit_order(p.symbol, p.qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
+        api.api.submit_order(p.symbol, p.qty, 'sell', 'market', 'day', limit_price=None, stop_price=None)
     print('\033[91m'+'Orders and positions closed')
     print('Local trading has now ended to preserve strategy integrity')
