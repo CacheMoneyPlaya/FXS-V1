@@ -79,8 +79,8 @@ def momentumSignal(t):
     elif position == (-1/3) and any(position.symbol == t for position in positions) and not any(order.symbol == t for order in orders):
         # Create sell order
         print('\033[91m'+'Selling '+t+' at '+str(df.iloc[-1]['Open']))
-        sell_qty = next((x.qty for x in orders if x.symbol == t), None)
-        api.api.submit_order(t, str(sell_qty), "sell", "market", "day")
+        sell_qty = next((x.qty for x in positions if x.symbol == t), None)
+        api.api.submit_order(t, sell_qty, "sell", "market", "day")
 
     # Visualization
     # fig = plt.figure()
