@@ -14,7 +14,7 @@ import pytz
 import numpy as np
 
 ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
-data, metadata = ts.get_intraday(symbol='NAV', interval='1min')
+data, metadata = ts.get_intraday(symbol='RL', interval='1min')
 
 # Switched to EMA strategy to reduce price lag
 price = pd.DataFrame(data)

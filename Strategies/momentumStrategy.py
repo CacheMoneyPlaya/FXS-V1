@@ -21,8 +21,8 @@ def momentumSignal(t, api, ts):
 
     # Switched to EMA strategy to reduce price lag with alpha for further log accuracy
     price = pd.DataFrame(data)
-    alpha = (2/(3+1))
-    ema_short = pd.DataFrame(data).ewm(alpha=alpha, adjust=False).mean().shift(-3)
+    alpha = 5
+    ema_short = pd.DataFrame(data).ewm(span=alpha, adjust=False).mean().shift(-5)
 
     # Visualize
     # ema_short['4. close'].plot()
@@ -31,15 +31,15 @@ def momentumSignal(t, api, ts):
 
     # Taking the difference between the prices and the EMA timeseries
     diff = float(price.iloc[0]['4. close']) - float(ema_short.iloc[0]['4. close'])
-    position = np.sign(diff) * 1/3
+    position = np.sign(diff)
 
     # Scenario where the momentum doesn't react in time to place a correct sell we force liquidation:
     if (any(position.symbol == t for position in positions) and 
             float(price.iloc[0]['4. close']) < float(next((p.qty for p in positions if p.symbol == t), None))):
-        position = -1/3
+        position = -1
     
     # If we have a buy signal, we have no current pending buy orders and we dont have any open positions buy
-    if (math.isclose(position,1/3, abs_tol=1e-8) and 
+    if (position == 1 and 
         not any(order.symbol == t for order in orders) and 
             not any(position.symbol == t for position in positions)):
         # Create buy order with 1/4 of buying power
@@ -47,7 +47,7 @@ def momentumSignal(t, api, ts):
         buy_qty = math.ceil((float(account.equity)*(1/4))/(float(price.iloc[0]['4. close'])))
         api.api.submit_order(t, str(buy_qty), "buy", "market", "day")
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
-    elif (math.isclose(position,-1/3, abs_tol=1e-8) and 
+    elif (position == -1 and 
         any(position.symbol == t for position in positions) and 
             not any(order.symbol == t for order in orders)):
         # Create sell order
