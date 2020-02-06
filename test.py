@@ -14,12 +14,13 @@ import pytz
 import numpy as np
 
 ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
-data, metadata = ts.get_intraday(symbol='RL', interval='1min')
+data, metadata = ts.get_intraday(symbol='NUAN', interval='1min')
 
 # Switched to EMA strategy to reduce price lag
-price = pd.DataFrame(data)
+price = pd.DataFrame(data).iloc[::-1]
+
 alpha = (2/(3+1))
-ema_short = pd.DataFrame(data).ewm(alpha=alpha, adjust=False).mean().shift(-3)
+ema_short = price.ewm(alpha=alpha, adjust=False).mean()
 
 
 fig = plt.figure()
