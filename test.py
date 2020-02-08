@@ -14,7 +14,7 @@ import pytz
 import numpy as np
 
 ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
-data, metadata = ts.get_intraday(symbol='NUAN', interval='1min')
+data, metadata = ts.get_intraday(symbol='DAO', interval='1min')
 
 # Switched to EMA strategy to reduce price lag
 price = pd.DataFrame(data).iloc[::-1]
