@@ -7,6 +7,7 @@ import pandas as pd
 import time
 import pytz
 import numpy as np
+import csv
 
 
 # Calculate the moving average , 5minMA and 15 minMA (check fibonacci seq) concurrent value
