@@ -3,6 +3,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from AlpacaAPI.alpacaApi import AlpacaApi
 from alpha_vantage.timeseries import TimeSeries
+from dotenv import load_dotenv
+from yahoo_fin.stock_info import get_live_price
 import Strategies.momentumStrategy as mstrat
 import os
 import math
@@ -21,7 +23,8 @@ class Entry:
         # Fetch tickers
         scraper = Scraper()
         tickers = scraper.getTopPerformers()
-        # Iterate through each
+        # Sleep for 60 to gain correct balance in data
+        time.sleep(60)
         self.setTickerFocus(tickers)
 
     def setTickerFocus(self, tickers):
@@ -34,12 +37,21 @@ class Entry:
 
     def run(self, tickers):
         now_UTC = datetime.now(pytz.timezone('America/New_York'))
-
         while now_UTC.hour < 16:
+            market_settle = 0
             for t in tickers:
                 #Can theoretically set the applicable strats here
-                mstrat.momentumSignal(t, self.api, self.ts)
+                live_ask = get_live_price(t)
+                concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
 
+                updated_df = [[concurrent_time, 0, 0, 0, live_ask, 0]]
+                df = pd.DataFrame(updated_df)
+                df.to_csv(os.getenv('TICKER_DATA_FILE_PATH')+t+'.csv', mode='a', header=False, index=False)
+                if market_settle > -1:
+                    mstrat.momentumSignal(t, self.api, self.ts)
+                else:
+                    print('\033[32m'+'Market Adjustment in progress')
+            market_settle+=1
             print('\033[32m'+ '--------- ' +'Round Complete' + ' ---------')
             time.sleep(60)
         self.endDayTradepositions()
