@@ -19,7 +19,7 @@ class Entry:
     ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
 
     def __init__(self):
-        load_dotenv('.env')
+        # load_dotenv('.env')
         # Fetch tickers
         scraper = Scraper()
         tickers = scraper.getTopPerformers()
@@ -39,14 +39,13 @@ class Entry:
         now_UTC = datetime.now(pytz.timezone('America/New_York'))
         while now_UTC.hour < 16:
             market_settle = 0
+            concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:00")
             for t in tickers:
                 #Can theoretically set the applicable strats here
                 live_ask = get_live_price(t)
-                concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:%S")
-
                 updated_df = [[concurrent_time, 0, 0, 0, live_ask, 0]]
                 df = pd.DataFrame(updated_df)
-                df.to_csv(os.getenv('TICKER_DATA_FILE_PATH')+t+'.csv', mode='a', header=False, index=False)
+                df.to_csv('/home/ubuntu/FXS-V1/TickerData/'+t+'.csv', mode='a', header=False, index=False)
                 if market_settle > -1:
                     mstrat.momentumSignal(t, self.api, self.ts)
                 else:
@@ -55,9 +54,9 @@ class Entry:
             print('\033[32m'+ '--------- ' +'Round Complete' + ' ---------')
             time.sleep(60)
         self.endDayTradepositions()
-        print('Markets are now closed')    
+        print('Markets are now closed')
         exit()
-    
+
     def endDayTradepositions(self):
         positions = self.api.api.list_positions()
         orders = self.api.api.list_orders()
