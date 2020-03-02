@@ -19,7 +19,7 @@ class Entry:
     ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
 
     def __init__(self):
-        # load_dotenv('.env')
+        load_dotenv('.env')
         # Fetch tickers
         scraper = Scraper()
         tickers = scraper.getTopPerformers()

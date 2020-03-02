@@ -15,30 +15,13 @@ import numpy as np
 import csv
 from yahoo_fin.stock_info import get_live_price
 
-
-print(get_live_price('DAO'))
-exit()
-ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
-data, metadata = ts.get_intraday(symbol='DAO', interval='1min')
-print(data)
-
-exit()
-# Switched to EMA strategy to reduce price lag
-price = pd.DataFrame(data).iloc[::-1]
-for a in enumerate(price):
-    print(a)
-# print(price)
-exit()
-alpha = (2/(3+1))
-ema_short = price.ewm(alpha=alpha, adjust=False).mean()
-
+asset_df = pd.read_csv('C:/Users/janva/Documents/Github/FXS-V1/TickerData/TWTR.csv', index_col='date')
+ema_short = asset_df.ewm(span=3, adjust=False).mean()
+ema_long = asset_df.ewm(span=20, adjust=False).mean()
 
 fig = plt.figure()
 # Visualize
-# ema_short['4. close'].plot()
-price['4. close'].plot()
+ema_short['4. close'].plot()
+ema_long['4. close'].plot()
 plt.show()
-# with open('Strategies/orders.csv', 'a', newline = '') as csvFile:
-    # csvWriter = csv.writer(csvFile, delimiter = ',')
-    # csvWriter.writerow(['buy','-1', '4.99', 'TSLA'])
 exit()
