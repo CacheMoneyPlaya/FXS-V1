@@ -21,7 +21,7 @@ def momentumSignal(t, api, ts):
     positions = api.api.list_positions()
     account = api.api.get_account()
 
-    asset_df = pd.read_csv('/home/ubuntu/FXS-V1/TickerData/',+t+'.csv', index_col='date')
+    asset_df = pd.read_csv('/home/ubuntu/FXS-V1/TickerData/'+t+'.csv', index_col='date')
     ema_short = asset_df.ewm(span=2, adjust=False).mean()
     ema_long = asset_df.ewm(span=20, adjust=False).mean()
 
@@ -46,7 +46,7 @@ def momentumSignal(t, api, ts):
 
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
     elif (position == -1 and
-            prior_diff == 1 and
+            prior_position == 1 and
                 any(position.symbol == t for position in positions) and
                     not any(order.symbol == t for order in orders)):
         # Create sell order

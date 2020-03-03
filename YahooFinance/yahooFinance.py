@@ -28,11 +28,11 @@ class Scraper:
         for i in assets:
             if i.contents[0] in self.available and len(self.tickers) < 3:
                 self.tickers.append(i.contents[0])
-        
+
         for i in self.tickers:
             data, metadata = ts.get_intraday(symbol=i, interval='1min')
             transformed_data = pd.DataFrame(data).iloc[::-1]
-            transformed_data.to_csv('/Users/janvanbergen/Documents/Github/FXS-V1/TickerData/'+i+'.csv')
+            transformed_data.to_csv('/home/ubuntu/FXS-V1/TickerData'+i+'.csv')
         return self.tickers
 
 class YahooData:
