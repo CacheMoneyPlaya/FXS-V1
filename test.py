@@ -15,8 +15,8 @@ import numpy as np
 import csv
 from yahoo_fin.stock_info import get_live_price
 
-asset_df = pd.read_csv('C:/Users/janva/Documents/Github/FXS-V1/TickerData/PSB.csv', index_col='date')
-ema_short = asset_df.ewm(span=2, adjust=False).mean()
+asset_df = pd.read_csv('C:/Users/janva/Documents/Github/FXS-V1/TickerData/EHTH.csv', index_col='date')
+ema_short = asset_df.ewm(span=10, adjust=False).mean()
 ema_long = asset_df.ewm(span=20, adjust=False).mean()
 
 fig = plt.figure()

@@ -6,6 +6,7 @@ from alpha_vantage.timeseries import TimeSeries
 from dotenv import load_dotenv
 from yahoo_fin.stock_info import get_live_price
 import Strategies.momentumStrategy as mstrat
+from Spreadsheets.csvHandler import csvHandler as csv
 import os
 import math
 import pandas as pd
@@ -14,18 +15,19 @@ import pytz
 import numpy as np
 
 class Entry:
-    tickers = []
-    api = AlpacaApi()
-    ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
+
 
     def __init__(self):
         load_dotenv('.env')
+        self.tickers = []
+        self.api = AlpacaApi()
+        self.csvHandler = csv()
+        self.ts = TimeSeries(key='', output_format='pandas')
         # Fetch tickers
-        scraper = Scraper()
-        tickers = scraper.getTopPerformers()
+        self.tickers = Scraper().getTopPerformers()
         # Sleep for 60 to gain correct balance in data
-        time.sleep(60)
-        self.setTickerFocus(tickers)
+        time.sleep(5)
+        self.setTickerFocus(self.tickers)
 
     def setTickerFocus(self, tickers):
         now_UTC = datetime.now(pytz.timezone('America/New_York'))
@@ -40,14 +42,14 @@ class Entry:
         while now_UTC.hour < 16:
             market_settle = 0
             concurrent_time = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d %H:%M:00")
-            for t in tickers:
+            for t in self.tickers:
                 #Can theoretically set the applicable strats here
                 live_ask = get_live_price(t)
                 updated_df = [[concurrent_time, 0, 0, 0, live_ask, 0]]
                 df = pd.DataFrame(updated_df)
-                df.to_csv('/home/ubuntu/FXS-V1/TickerData/'+t+'.csv', mode='a', header=False, index=False)
+                self.csvHandler.appendTickerData(t, df)
                 if market_settle > -1:
-                    mstrat.momentumSignal(t, self.api, self.ts)
+                    mstrat.momentumSignal(t, self.api, self.ts, self.csvHandler)
                 else:
                     print('\033[32m'+'Market Adjustment in progress')
             market_settle+=1

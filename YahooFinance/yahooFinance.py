@@ -6,11 +6,14 @@ import csv
 from bs4 import BeautifulSoup
 from AlpacaAPI.alpacaApi import AlpacaApi
 from alpha_vantage.timeseries import TimeSeries
+from Spreadsheets.csvHandler import csvHandler as csv
 
 class Scraper:
 
-    tickers = []
-    available = []
+    def __init__(self):
+        self.tickers = []
+        self.available = []
+        self.mapper = csv()
 
     def getTopPerformers(self):
         url = "https://finance.yahoo.com/gainers"
@@ -23,16 +26,16 @@ class Scraper:
         # Filter all of the day's available symbols
         for a in availableTickers:
             self.available.append(a.symbol)
-
         # Create a list of 3 of the top performing daily symbols
-        for i in assets:
-            if i.contents[0] in self.available and len(self.tickers) < 3:
-                self.tickers.append(i.contents[0])
-
-        for i in self.tickers:
-            data, metadata = ts.get_intraday(symbol=i, interval='1min')
+        for a in assets:
+            if a.contents[0] in self.available and len(self.tickers) < 2:
+                self.tickers.append(a.contents[0])
+        # Set the inital historical data to be used for the days spread
+        for t in self.tickers:
+            data, metadata = ts.get_intraday(symbol=t, interval='1min')
             transformed_data = pd.DataFrame(data).iloc[::-1]
-            transformed_data.to_csv('/home/ubuntu/FXS-V1/TickerData'+i+'.csv')
+            self.mapper.initalHistoricData(t, transformed_data)
+
         return self.tickers
 
 class YahooData:

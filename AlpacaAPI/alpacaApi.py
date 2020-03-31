@@ -16,6 +16,3 @@ class AlpacaApi():
 
     def getAllTickers(self):
         return self.api.list_assets(status=None, asset_class=None)
-
-    def getTickerData(self):
-        print('Getting ticker data')
