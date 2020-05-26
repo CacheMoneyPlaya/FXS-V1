@@ -9,8 +9,8 @@ class AlpacaApi():
         # load_dotenv('.env')
         # Instantiate the alpaca API for class wide use
         self.api = tradeapi.REST(
-            key_id="PKT9Q61IRG21C90XHC9D",
-            secret_key="/Qa7OJiZiutg/XHpgyDf8utFKbpkJRYELXUEDjOD",
+            key_id="",
+            secret_key="",
             base_url="https://paper-api.alpaca.markets",
             api_version='v2')
 

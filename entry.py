@@ -21,7 +21,7 @@ class Entry:
         self.tickers = []
         self.api = AlpacaApi()
         self.csvHandler = csv()
-        self.ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
+        self.ts = TimeSeries(key='', output_format='pandas')
         self.tickers = Scraper().getTopPerformers()
         time.sleep(5)
         self.setTickerFocus(self.tickers)
