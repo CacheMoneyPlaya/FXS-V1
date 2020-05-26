@@ -16,16 +16,13 @@ import numpy as np
 
 class Entry:
 
-
     def __init__(self):
         load_dotenv('.env')
         self.tickers = []
         self.api = AlpacaApi()
         self.csvHandler = csv()
-        self.ts = TimeSeries(key='', output_format='pandas')
-        # Fetch tickers
+        self.ts = TimeSeries(key='J4PU1QWYKNZ1MJZJ', output_format='pandas')
         self.tickers = Scraper().getTopPerformers()
-        # Sleep for 60 to gain correct balance in data
         time.sleep(5)
         self.setTickerFocus(self.tickers)
 
@@ -53,7 +50,7 @@ class Entry:
                 else:
                     print('\033[32m'+'Market Adjustment in progress')
             market_settle+=1
-            print('\033[32m'+ '--------- ' +'Round Complete' + ' ---------')
+            print('\033[32m'+ '--------- Round Complete ---------')
             time.sleep(60)
         self.endDayTradepositions()
         print('Markets are now closed')
@@ -63,9 +60,10 @@ class Entry:
         positions = self.api.api.list_positions()
         orders = self.api.api.list_orders()
         # Sell assets at current price
+        # Look into cancelling this properly
         for o in orders:
-            self.api.api.cancel_order(o.order_id)
+            self.api.api.cancel_order(o.client_order_id)
         for p in positions:
-            self.api.api.submit_order(p.symbol, p.qty, 'sell', 'market', 'day')
+            self.api.api.submit_order(p.symbol, p.qty, "sell", "market", "day")
         print('\033[91m'+'Orders and positions closed')
         print('Local trading has now ended to preserve strategy integrity')
