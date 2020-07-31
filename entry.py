@@ -2,6 +2,7 @@ from YahooFinance.yahooFinance import Scraper, YahooData
 from datetime import datetime
 from dotenv import load_dotenv
 from AlpacaAPI.alpacaApi import AlpacaApi
+from IBAPI.IBAPI import IBapi as api
 from alpha_vantage.timeseries import TimeSeries
 from dotenv import load_dotenv
 from yahoo_fin.stock_info import get_live_price
@@ -18,8 +19,8 @@ class Entry:
 
     def __init__(self):
         load_dotenv('.env')
+        self.api = api()
         self.tickers = []
-        self.api = AlpacaApi()
         self.csvHandler = csv()
         self.ts = TimeSeries(key='', output_format='pandas')
         self.tickers = Scraper().getTopPerformers()
