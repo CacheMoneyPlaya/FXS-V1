@@ -18,3 +18,4 @@ _____ __  __ ____         __     __ _      _     _       ____   ___
  For intiation of venv refer to : https://docs.python.org/3/library/venv.html
  To install required packages run `pip install -r requirements.txt`
  
+2/08/20 - Began a few days ago integrating Interactive Brokers API/Workstation for more profeessional use.
