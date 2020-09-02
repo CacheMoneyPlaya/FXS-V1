@@ -36,14 +36,14 @@ def momentumSignal(t, api, ts, ch):
         print('\033[32m'+'BUYING '+t+' at '+str(asset_df.iloc[-1]['4. close']))
         buy_qty = math.ceil((float(account.equity)*(1/5))/(float(asset_df.iloc[-1]['4. close'])))
         # Make a buy order
-        self.api.api.market_order(t, buy_qty, 'BUY')
+        api.api.market_order(t, buy_qty, 'BUY')
     # If we have a sell signal, there are no pending sell orders for that asset and we have a position to sell
     elif (is_sell(position, prior_position, orders, positions)):
         # Create sell order with all volume we have with asset "t"
         print('\033[91m'+'Selling '+t+' at '+str(asset_df.iloc[-1]['4. close']))
         sell_qty = next((x.qty for x in positions if x.symbol == t), None)
         # Make a sell order
-        self.api.api.market_order(t, sell_qty, 'SELL')
+        api.api.market_order(t, sell_qty, 'SELL')
     else:
         print('\033[91m' + 'No trades viable' + ' @ ' + t)
 

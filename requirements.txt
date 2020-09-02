@@ -43,3 +43,4 @@ wrapt==1.11.2
 yahoo-fin==0.8.4
 yfinance==0.1.54
 alpha_vantage==2.2.0
+overrides==3.1.0

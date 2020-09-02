@@ -2,7 +2,7 @@ from YahooFinance.yahooFinance import Scraper, YahooData
 from datetime import datetime
 from dotenv import load_dotenv
 from AlpacaAPI.alpacaApi import AlpacaApi
-from IBAPI.IBAPI import IBapi as api
+from InteractiveBrokersAPI.InteractiveBrokersAPI import IBapi as api
 from alpha_vantage.timeseries import TimeSeries
 from dotenv import load_dotenv
 from yahoo_fin.stock_info import get_live_price
