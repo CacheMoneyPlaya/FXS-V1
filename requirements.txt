@@ -38,7 +38,7 @@ urllib3==1.24.3
 virtualenv==16.7.9
 w3lib==1.21.0
 websocket-client==0.57.0
-websockets==8.1
+websockets==9.1
 wrapt==1.11.2
 yahoo-fin==0.8.4
 yfinance==0.1.54
